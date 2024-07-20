@@ -71,7 +71,7 @@ function resetGame() {
     gameInterval = setInterval(updateGame, 100);
 }
 
-// Control player movement
+// Control player movement with keyboard
 window.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowLeft' && playerPosition.x > 0) {
         playerPosition.x -= 10;
@@ -81,6 +81,19 @@ window.addEventListener('keydown', (e) => {
     }
     player.style.left = `${playerPosition.x}px`;
 });
+
+// Control player movement with touch
+gameContainer.addEventListener('touchstart', handleTouch);
+gameContainer.addEventListener('touchmove', handleTouch);
+
+function handleTouch(e) {
+    const touch = e.touches[0];
+    const touchX = touch.clientX - gameContainer.offsetLeft;
+    if (touchX > 0 && touchX < gameContainer.clientWidth - player.clientWidth) {
+        playerPosition.x = touchX - (player.clientWidth / 2);
+        player.style.left = `${playerPosition.x}px`;
+    }
+}
 
 // Start game
 gameInterval = setInterval(updateGame, 100);
