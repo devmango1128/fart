@@ -10,29 +10,34 @@
             padding: 0;
             overflow: hidden;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
             background-color: #f0f0f0;
         }
         .game-container {
-            position: relative;
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
-            height: 100%;
+            height: calc(100% - 100px); /* Adjust height to leave space for the ad banner */
+            z-index: 10; /* Ensure the game is above other elements */
         }
         #player {
             position: absolute;
             bottom: 20px;
-            width: 80px; /* Adjusted width */
-            height: 80px; /* Adjusted height */
+            width: 80px;
+            height: 80px;
             background: url('src/images/person.png') no-repeat center center;
-            background-size: contain; /* Ensures the image fits within the specified dimensions */
+            background-size: contain;
         }
         .poop {
             position: absolute;
             width: 30px;
             height: 30px;
             background: url('src/images/poop_icon.png') no-repeat center center;
+            background-size: contain;
         }
         #score {
             position: absolute;
@@ -41,13 +46,27 @@
             font-size: 24px;
             color: black;
         }
+        #ad-banner {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            height: 100px;
+            background-color: #ccc;
+            text-align: center;
+            line-height: 100px;
+            z-index: 20; /* Ensure the ad banner is above the game */
+        }
     </style>
 </head>
 <body>
-<div class="game-container" id="gameContainer">
-    <div id="player"></div>
-    <div id="score">Score: 0</div>
-</div>
-<script src="src/js/game.js"></script>
+    <div class="game-container" id="gameContainer">
+        <div id="player"></div>
+        <div id="score">Score: 0</div>
+    </div>
+    <div id="ad-banner">
+        <!-- Ad content goes here -->
+        <p>Ad Banner</p>
+    </div>
+    <script src="src/js/game.js"></script>
 </body>
 </html>
