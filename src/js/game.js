@@ -1,87 +1,87 @@
-window.onload = function() {
-    const gameContainer = document.getElementById('gameContainer');
-    const player = document.getElementById('player');
-    const scoreDisplay = document.getElementById('score');
-    const playerWidth = player.offsetWidth;
-    const playerHeight = player.offsetHeight;
-    let playerX = gameContainer.clientWidth / 2 - playerWidth / 2;
-    let playerY = gameContainer.clientHeight - playerHeight - 20;
-    let poops = [];
-    let score = 0;
+const player = document.getElementById('player');
+const gameContainer = document.getElementById('gameContainer');
+const scoreDisplay = document.getElementById('score');
 
-    player.style.left = `${playerX}px`;
-    player.style.top = `${playerY}px`;
+let score = 0;
+let playerPosition = { x: gameContainer.clientWidth / 2, y: gameContainer.clientHeight - 100 };
+let poops = [];
+let gameInterval;
 
-    function createPoop() {
-        const poop = document.createElement('div');
-        poop.classList.add('poop');
-        poop.style.left = `${Math.random() * (gameContainer.clientWidth - 30)}px`;
-        poop.style.top = `0px`;
-        gameContainer.appendChild(poop);
-        poops.push(poop);
-    }
+// Adjust player position based on window resize
+function resizeGame() {
+    playerPosition.x = gameContainer.clientWidth / 2;
+    playerPosition.y = gameContainer.clientHeight - 100;
+    player.style.left = `${playerPosition.x}px`;
+    player.style.top = `${playerPosition.y}px`;
+}
+window.addEventListener('resize', resizeGame);
+resizeGame();
 
-    function movePoops() {
-        poops.forEach((poop, index) => {
-            let poopY = parseInt(poop.style.top);
-            poopY += 5;
-            poop.style.top = `${poopY}px`;
+// Generate poop
+function createPoop() {
+    const poop = document.createElement('div');
+    poop.classList.add('poop');
+    poop.style.left = `${Math.random() * (gameContainer.clientWidth - 30)}px`;
+    poop.style.top = `-30px`;
+    gameContainer.appendChild(poop);
+    poops.push(poop);
+}
 
-            if (poopY > gameContainer.clientHeight) {
-                gameContainer.removeChild(poop);
-                poops.splice(index, 1);
-                score += 1;
-                scoreDisplay.textContent = 'Score: ' + score;
-                console.log('Score:', score);
-            }
+// Move poop and check for collision
+function movePoops() {
+    poops.forEach((poop, index) => {
+        const poopTop = parseFloat(poop.style.top);
+        if (poopTop > gameContainer.clientHeight) {
+            gameContainer.removeChild(poop);
+            poops.splice(index, 1);
+        } else {
+            poop.style.top = `${poopTop + 5}px`;
 
-            if (detectCollision(player, poop)) {
+            // Check for collision
+            const poopRect = poop.getBoundingClientRect();
+            const playerRect = player.getBoundingClientRect();
+            if (
+                poopRect.left < playerRect.right &&
+                poopRect.right > playerRect.left &&
+                poopRect.top < playerRect.bottom &&
+                poopRect.bottom > playerRect.top
+            ) {
                 alert('Game Over!');
+                clearInterval(gameInterval);
                 resetGame();
             }
-        });
-    }
-
-    function detectCollision(player, poop) {
-        const playerRect = player.getBoundingClientRect();
-        const poopRect = poop.getBoundingClientRect();
-
-        return !(
-            playerRect.top > poopRect.bottom ||
-            playerRect.bottom < poopRect.top ||
-            playerRect.left > poopRect.right ||
-            playerRect.right < poopRect.left
-        );
-    }
-
-    function resetGame() {
-        poops.forEach(poop => {
-            gameContainer.removeChild(poop);
-        });
-        poops = [];
-        score = 0;
-        scoreDisplay.textContent = 'Score: ' + score;
-        playerX = gameContainer.clientWidth / 2 - playerWidth / 2;
-        player.style.left = `${playerX}px`;
-    }
-
-    document.addEventListener('keydown', (event) => {
-        const key = event.key;
-
-        if (key === 'ArrowLeft' && playerX > 0) {
-            playerX -= 20;
-        } else if (key === 'ArrowRight' && playerX < gameContainer.clientWidth - playerWidth) {
-            playerX += 20;
         }
-
-        player.style.left = `${playerX}px`;
     });
-
-    function gameLoop() {
-        movePoops();
-        requestAnimationFrame(gameLoop);
-    }
-
-    setInterval(createPoop, 1000);
-    gameLoop();
 }
+
+// Update game
+function updateGame() {
+    movePoops();
+    score += 1;
+    scoreDisplay.textContent = `Score: ${score}`;
+}
+
+// Reset game
+function resetGame() {
+    score = 0;
+    scoreDisplay.textContent = `Score: 0`;
+    poops.forEach(poop => gameContainer.removeChild(poop));
+    poops = [];
+    resizeGame();
+    gameInterval = setInterval(updateGame, 100);
+}
+
+// Control player movement
+window.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft' && playerPosition.x > 0) {
+        playerPosition.x -= 10;
+    }
+    if (e.key === 'ArrowRight' && playerPosition.x < gameContainer.clientWidth - 80) {
+        playerPosition.x += 10;
+    }
+    player.style.left = `${playerPosition.x}px`;
+});
+
+// Start game
+gameInterval = setInterval(updateGame, 100);
+setInterval(createPoop, 1000);
